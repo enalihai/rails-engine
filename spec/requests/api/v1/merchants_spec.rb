@@ -23,17 +23,20 @@ RSpec.describe "Merchants API", type: :request do
       end
     end
 
-    xit 'returns the show page for a single merchant' do
+    it 'returns the show page for a single merchant' do
       id = create(:merchant).id
 
       get "/api/v1/merchants/#{id}"
       merchant = JSON.parse(response.body, symbolize_names: true)
 
       expect(response).to be_successful
-      expect(merchant).to have_key(:id)
 
-      expect(merchant).to have_key(:name)
-      expect(merchant[:name]).to be_a(String)
+      expect(merchant).to have_key(:data)
+      expect(merchant[:data]).to have_key(:id)
+      expect(merchant[:data]).to have_key(:type)
+      expect(merchant[:data]).to have_key(:attributes)
+      expect(merchant[:data][:attributes]).to be_a(Hash)
+      expect(merchant[:data][:attributes][:name]).to be_a(String)
     end
   end
 end
