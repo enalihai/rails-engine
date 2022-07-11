@@ -3,5 +3,5 @@ class ItemSerializer
 
   set_type :item
   set_id :id
-  attribute :name, :description, :unit_price, :merchant_id
+  attributes :name, :description, :unit_price, :merchant_id
 end
