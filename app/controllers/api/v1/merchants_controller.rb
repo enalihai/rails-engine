@@ -1,13 +1,13 @@
 class Api::V1::MerchantsController < ApplicationController
-  before_action :set_api_v1_merchant, only: [:show, :update, :destroy]
+  # before_action :set_merchant, only: [:show, :update, :destroy]
 
   def index
     render json: Merchant.all
   end
-  #
-  # def show
-  #   render json: @api_v1_merchant
-  # end
+
+  def show
+    render json: Merchant.find(params[:id])
+  end
   #
   # def create
   #   @api_v1_merchant = Api::V1::Merchant.new(api_v1_merchant_params)
@@ -31,10 +31,10 @@ class Api::V1::MerchantsController < ApplicationController
   #   @api_v1_merchant.destroy
   # end
   #
-  # private
-  #   def set_api_v1_merchant
-  #     @api_v1_merchant = Api::V1::Merchant.find(params[:id])
-  #   end
+  private
+    # def set_merchant
+    #   merchant = Merchant.find(params[:id])
+    # end
   #
   #   def api_v1_merchant_params
   #     params.fetch(:api_v1_merchant, {id: params[:id], name: params[:name]})
