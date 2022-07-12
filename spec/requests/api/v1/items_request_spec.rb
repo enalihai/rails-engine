@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe 'Item API' do
   describe 'GET requests' do
     it 'returns the index of the items and checks their attributes' do
-      create_list(:item, 10)
+      merchant = create(:merchant)
+      create_list(:item, 10, merchant_id: merchant.id)
       get '/api/v1/items'
 
       expect(response).to be_successful
@@ -30,8 +31,11 @@ RSpec.describe 'Item API' do
     end
 
     it 'returns a single item based on id and checks their keys' do
-      id = create(:item).id
-      get "/api/v1/items/#{id}"
+      merchant = create(:merchant)
+      item_id = create(:item, merchant_id: merchant.id).id
+
+      get "/api/v1/items/#{item_id}"
+
       item = JSON.parse(response.body, symbolize_names: true)
 
       expect(response).to be_successful
@@ -89,7 +93,8 @@ RSpec.describe 'Item API' do
     end
 
     it 'can destroy an item' do
-      item = create(:item)
+      merchant = create(:merchant)
+      item = create(:item, merchant_id: merchant.id)
       expect(Item.last).to eq(item)
 
       delete "/api/v1/items/#{item.id}"
@@ -100,8 +105,8 @@ RSpec.describe 'Item API' do
     end
 
     it 'can update an items attributes' do
-      merchant = Merchant.create!(name: 'Hazel and Kona')
-      item = create(:item)
+      merchant = create(:merchant)
+      item = create(:item, merchant_id: merchant.id)
       first_name = Item.last.name
       new_name_params = {name: 'Quick-Crete'}
       headers = {"CONTENT_TYPE" => 'application/json'}
