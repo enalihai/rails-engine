@@ -89,6 +89,19 @@ RSpec.describe 'Item API' do
       expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    it 'can update an items attributes'
+    it 'can update an items attributes' do
+      merchant = Merchant.create!(name: 'Hazel and Kona')
+      item = create(:item)
+      first_name = Item.last.name
+      new_name_params = {name: 'Quick-Crete'}
+      headers = {"CONTENT_TYPE" => 'application/json'}
+
+      patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: new_name_params})
+      item = Item.find_by(id: item.id)
+
+      expect(response).to be_successful
+      expect(item.name).to_not eq(first_name)
+      expect(item.name).to eq('Quick-Crete')
+    end
   end
 end
