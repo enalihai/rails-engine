@@ -55,7 +55,9 @@ RSpec.describe 'Item API' do
       expect(items[:data].count).to eq(0)
     end
 
-    it 'can return the item merchant'
+    it 'can return the item merchant' do
+
+    end
   end
 
   describe 'POST requests' do
@@ -102,6 +104,17 @@ RSpec.describe 'Item API' do
       expect(response).to be_successful
       expect(item.name).to_not eq(first_name)
       expect(item.name).to eq('Quick-Crete')
+    end
+
+    it 'returns a 404 if update doesnt correct patch' do
+      merchant = create(:merchant)
+      item = create(:item, merchant_id: merchant.id)
+      first_name = Item.last.name
+      new_item_params = {name: 'Dog Collar', merchant_id: "xyz"}
+      headers = {"CONTENT_TYPE" => 'application/json'}
+      patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: new_item_params})
+
+      expect(response).to have_http_status(404)
     end
   end
 end
