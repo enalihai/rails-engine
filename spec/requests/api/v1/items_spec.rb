@@ -46,12 +46,49 @@ RSpec.describe 'Item API' do
       expect(item[:data][:attributes][:merchant_id]).to be_an(Integer)
     end
 
-    it 'checks for a blank return'
+    it 'checks for a blank return' do
+      get '/api/v1/items'
+
+      expect(response).to be_successful
+      items = JSON.parse(response.body, symbolize_names: true)
+
+      expect(items[:data].count).to eq(0)
+    end
+
     it 'can return the item merchant'
   end
+
   describe 'POST requests' do
-    it 'can create an item for a merchant'
+    it 'can create a new item for a merchant' do
+      merchant = Merchant.create!(name: 'Kona and Hazel')
+      item_params = ({
+        "name": 'Quick-Crete',
+        "description": 'settles in fast!',
+        "unit_price": 40.05,
+        "merchant_id": merchant.id
+        })
+      headers = {"CONTENT_TYPE" => 'application/json'}
+      post '/api/v1/items', headers: headers, params: JSON.generate(item: item_params)
+      item = Item.last
+
+      expect(response).to be_successful
+      expect(item[:id]).to eq(12)
+      expect(item[:description]).to eq('settles in fast!')
+      expect(item[:unit_price]).to eq(40.05)
+      expect(item[:merchant_id]).to eq(13)
+    end
+
+    it 'can destroy an item' do
+      item = create(:item)
+      expect(Item.last).to eq(item)
+
+      delete "/api/v1/items/#{item.id}"
+
+      expect(Item.count).to eq(0)
+      expect(response).to be_successful
+      expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
     it 'can update an items attributes'
-    it 'can destroy an item'
   end
 end
