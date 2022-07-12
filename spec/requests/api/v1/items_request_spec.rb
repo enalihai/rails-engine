@@ -70,6 +70,8 @@ RSpec.describe 'Item API' do
       expect(merchant_info[:data][:id]).to eq("#{merchant.id}")
       expect(merchant_info[:data][:attributes][:name]).to eq("#{merchant.name}")
     end
+
+    it 'can return a single item that matches a search term'
   end
 
   describe 'POST requests' do
