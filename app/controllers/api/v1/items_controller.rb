@@ -18,7 +18,7 @@ class Api::V1::ItemsController < ApplicationController
       render json: ItemSerializer.new(item), status: :ok
     else
       render status: 404
-    end 
+    end
   end
 
   def destroy

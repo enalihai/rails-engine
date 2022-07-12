@@ -55,8 +55,16 @@ RSpec.describe 'Item API' do
       expect(items[:data].count).to eq(0)
     end
 
-    it 'can return the item merchant' do
+    it 'can return the items merchant' do
+      merchant = create(:merchant)
+      item = create(:item, merchant_id: merchant.id)
 
+      get "/api/v1/items/#{item.id}/merchant"
+      merchant_info = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant_info[:data].count).to eq(3)
+      expect(merchant_info[:data][:id]).to eq("#{merchant.id}")
+      expect(merchant_info[:data][:attributes][:name]).to eq("#{merchant.name}")
     end
   end
 
@@ -74,10 +82,10 @@ RSpec.describe 'Item API' do
       item = Item.last
 
       expect(response).to be_successful
-      expect(item[:id]).to eq(12)
+      expect(item[:id]).to be_an(Integer)
       expect(item[:description]).to eq('settles in fast!')
       expect(item[:unit_price]).to eq(40.05)
-      expect(item[:merchant_id]).to eq(13)
+      expect(item[:merchant_id]).to be_an(Integer)
     end
 
     it 'can destroy an item' do
