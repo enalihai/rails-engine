@@ -10,4 +10,12 @@ RSpec.describe Merchant, type: :model do
   describe 'validations' do
     it { should validate_presence_of(:name)}
   end
+
+  describe '.self#find_merchant' do
+    it 'returns single merchant by alphbet::name/no case with partials'
+  end
+
+  describe '.self#find_all' do
+    it 'returns all merchants alphabetically/no case with partials'
+  end
 end
