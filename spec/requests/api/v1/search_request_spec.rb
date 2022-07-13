@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Merchant and Item Search' do
   describe 'GET /items/find request' do
-    it 'returns single item that matches search term' do
+    it 'returns single item from case insensitive query params' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -30,11 +30,11 @@ RSpec.describe 'Merchant and Item Search' do
         unit_price: 38.04
       })
 
-      search_params = {name: 'desk'}
+      search_params = {name: '789654'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find', headers: headers, params: search_params
-
+binding.pry
       expect(response).to be_successful
 
       item = JSON.parse(response.body, symbolize_names: true)
@@ -65,32 +65,34 @@ RSpec.describe 'Merchant and Item Search' do
 
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
+    it 'returns '
+    it '?name returns a single item alphabetically'
+    it '?min_price# should return equal to or greater than given price'
+    it '?max_price# should return equal to or less than given price'
+    it '?max_price=X&min_price=Y can be used in query'
+    it 'uses EITHER name param OR either/both price params'
+    it 'uses BOTH name param AND either/both price params returns error'
   end
 
   describe 'GET /merchants/find request' do
-    it 'single merchant that matches search term'
-    it 'allows ?name which returns name and description'
-    it 'allows ?name to be case insensitive'
+    it 'single merchant from case insensitive query params'
+    it '?name which returns name and description'
     it '?name returns alphabetically'
   end
 
   describe 'GET /items/find_all request' do
-    it 'items that match search term'
-    it 'allows to specify a name query parameter'
-    it 'allows name: query parameter to be case insensitive'
+    it 'returns all items that match case insensitive query parameters'
+    it '?name=Name returns all items alphabetically'
     it '?min_price# should return equal to or greater than given price'
     it '?max_price# should return equal to or less than given price'
-    it '?max_price=X&min_price=Y can use min and max price in query'
-    it '?name=Name returns all items alphabetically'
-    it 'allows to search by one or more price-related query parameters'
+    it '?max_price=X&min_price=Y can be used in query'
     it 'uses EITHER name param OR either/both price params'
     it 'uses BOTH name param AND either/both price params returns error'
   end
 
   describe 'GET /merchants/find_all request' do
-    it 'returns all merchants that match search term'
-    it 'allows a name query parameter which returns name and description'
-    it 'allows name: query parameter to be case insensitive'
-    it '?name returns all matching merchants alphabetically'
+    it 'single merchant from case insensitive query params'
+    it '?name which returns name and description'
+    it '?name returns alphabetically'
   end
 end
