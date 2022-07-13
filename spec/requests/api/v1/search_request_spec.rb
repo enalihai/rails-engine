@@ -39,8 +39,8 @@ RSpec.describe 'Merchant and Item Search' do
 
       item = JSON.parse(response.body, symbolize_names: true)
 
-      expect(item[:data]).to be_a(Hash)
-      expect(item[:data][:attributes].count).to eq(4)
+      expect(item).to be_a(Hash)
+      expect(item[:data].count).to eq(3)
       expect(item[:data][:type]).to eq('item')
 
       item_attributes = item[:data][:attributes]
