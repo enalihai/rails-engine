@@ -66,7 +66,7 @@ RSpec.describe 'Merchant and Item Search' do
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
 
-    it 'returns an error object when name query params invalid' do
+    it 'returns an error object when name query=NOMATCH' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -166,6 +166,25 @@ RSpec.describe 'Merchant and Item Search' do
       expect(merchant[:data][:type]).to eq('merchant')
       expect(merchant[:data][:attributes]).to be_a(Hash)
       expect(merchant[:data][:attributes][:name]).to eq('Pangolier Pizza')
+    end
+
+    it 'returns an error object when name query=NOMATCH' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Angels Pasta')
+      merchant_3 = Merchant.create!(name: 'Quick Dogs')
+
+      search_params = {name: 'Raditz Ramen'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data]).to be_a(Hash)
+      expect(merchant[:data][:id]).to be_a(String)
+      expect(merchant[:data][:title]).to be_a(String)
     end
 
     it '?name which returns name and description'
