@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Merchant and Item Search' do
   describe 'GET /items/find request' do
-    it 'returns single item from case insensitive query params' do
+    it 'returns single item from case insensitive name query params' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -30,7 +30,7 @@ RSpec.describe 'Merchant and Item Search' do
         unit_price: 38.04
       })
 
-      search_params = {name: 'Desk'}
+      search_params = {name: 'DeSk'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find', headers: headers, params: search_params
@@ -66,7 +66,7 @@ RSpec.describe 'Merchant and Item Search' do
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
 
-    it 'returns an error object with correct attributes' do
+    it 'returns an error object when name query params invlaid' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -96,14 +96,64 @@ RSpec.describe 'Merchant and Item Search' do
     it 'uses BOTH name param AND either/both price params returns error'
   end
 
+  describe 'GET /items/find_all request' do
+    it 'returns all items that match case insensitive query parameters' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 38.85
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 42.75
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Overnight bag',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+
+      search_params = {name: 'BaG'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find_all', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)
+
+      expect(items).to be_a(Hash)
+      expect(items[:data]).to be_an(Array)
+    end
+
+    it '?name=Name returns all items alphabetically'
+    it '?min_price# should return equal to or greater than given price'
+    it '?max_price# should return equal to or less than given price'
+    it '?max_price=X&min_price=Y can be used in query'
+    it 'uses EITHER name param OR either/both price params'
+    it 'uses BOTH name param AND either/both price params returns error'
+  end
+
   describe 'GET /merchants/find request' do
-    it 'single merchant from case insensitive query params' do
+    it 'single merchant from case insensitive name query params' do
       merchant_1 = Merchant.create!(name: 'Animal House')
       merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_3 = Merchant.create!(name: 'Bills BBQ')
 
 
-      search_params = {name: 'Pizza'}
+      search_params = {name: 'pIzZa'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/merchants/find', headers: headers, params: search_params
@@ -115,25 +165,15 @@ RSpec.describe 'Merchant and Item Search' do
       expect(merchant[:data]).to be_a(Hash)
       expect(merchant[:data][:type]).to eq('merchant')
       expect(merchant[:data][:attributes]).to be_a(Hash)
-      expect(merchant[:data][:attributes][:name]).to be_a(String)
+      expect(merchant[:data][:attributes][:name]).to eq('Pangolier Pizza')
     end
 
     it '?name which returns name and description'
     it '?name returns alphabetically'
   end
 
-  describe 'GET /items/find_all request' do
-    it 'returns all items that match case insensitive query parameters'
-    it '?name=Name returns all items alphabetically'
-    it '?min_price# should return equal to or greater than given price'
-    it '?max_price# should return equal to or less than given price'
-    it '?max_price=X&min_price=Y can be used in query'
-    it 'uses EITHER name param OR either/both price params'
-    it 'uses BOTH name param AND either/both price params returns error'
-  end
-
   describe 'GET /merchants/find_all request' do
-    it 'single merchant from case insensitive query params'
+    it 'all merchants from case insensitive query params'
     it '?name which returns name and description'
     it '?name returns alphabetically'
   end
