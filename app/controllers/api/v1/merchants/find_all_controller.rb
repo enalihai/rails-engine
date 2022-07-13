@@ -1,4 +1,4 @@
-class Api::V1::Merchants::FindAllController < ApplicationController
-  def index
-  end
-end 
+# class Api::V1::Merchants::FindAllController < ApplicationController
+#   def index
+#   end
+# end

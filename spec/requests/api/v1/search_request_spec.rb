@@ -66,7 +66,7 @@ RSpec.describe 'Merchant and Item Search' do
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
 
-    it 'returns an error object when name query params invalid' do
+    it 'returns an error object when name query=NOMATCH' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -97,7 +97,7 @@ RSpec.describe 'Merchant and Item Search' do
   end
 
   describe 'GET /items/find_all request' do
-    it 'returns all items that match case insensitive query parameters' do
+    xit 'returns all items that match case insensitive query parameters' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -136,6 +136,7 @@ RSpec.describe 'Merchant and Item Search' do
 
       expect(items).to be_a(Hash)
       expect(items[:data]).to be_an(Array)
+      # add more tests here after model AR / SQL
     end
 
     it '?name=Name returns all items alphabetically'
@@ -167,12 +168,49 @@ RSpec.describe 'Merchant and Item Search' do
       expect(merchant[:data][:attributes][:name]).to eq('Pangolier Pizza')
     end
 
+    it 'returns an error object when name query=NOMATCH' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Angels Pasta')
+      merchant_3 = Merchant.create!(name: 'Quick Dogs')
+
+      search_params = {name: 'Raditz Ramen'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data]).to be_a(Hash)
+      expect(merchant[:data][:id]).to be_a(String)
+      expect(merchant[:data][:title]).to be_a(String)
+    end
+
     it '?name which returns name and description'
     it '?name returns alphabetically'
   end
 
   describe 'GET /merchants/find_all request' do
-    it 'all merchants from case insensitive query params'
+    xit 'all merchants from case insensitive name query params' do
+      merchant_1 = Merchant.create!(name: 'Animal House')
+      merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_3 = Merchant.create!(name: 'Bills BBQ')
+
+      search_params = {name: 'pIzZa'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find_all', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants).to be_a(Hash)
+      expect(merchants[:data]).to be_an(Array)
+      # add more tests here after model AR/SQL
+    end
+
     it '?name which returns name and description'
     it '?name returns alphabetically'
   end
