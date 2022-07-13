@@ -70,8 +70,6 @@ RSpec.describe 'Item API' do
       expect(merchant_info[:data][:id]).to eq("#{merchant.id}")
       expect(merchant_info[:data][:attributes][:name]).to eq("#{merchant.name}")
     end
-
-    it 'can return a single item that matches a search term'
   end
 
   describe 'POST requests' do
@@ -130,6 +128,75 @@ RSpec.describe 'Item API' do
       patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: new_item_params})
 
       expect(response).to have_http_status(404)
+    end
+  end
+
+  describe 'GET /items/find request' do
+    it 'returns single item that matches search term' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 38.85
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 42.75
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Suitcase',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+
+      search_params = {name: 'desk'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: search_params
+      response_body = JSON.parse(response.body, symbolize_names: true)
+      item = response.body
+
+      expect(response).to be_successful
+      expect(item).to have_key([:data])
+      expect(item[:data]).to be_a(Hash)
+      expect(item[:data]).to have_key([:attributes])
+
+      item_attributes = item[:data][:attributes]
+
+      expect(item_attributes).to have_key([:name])
+      expect(item_attributes[:name]).to eq('desk')
+      expect(item_attributes[:name]).to not_eq('Candlestick')
+      expect(item_attributes[:name]).to not_eq('Rope bag')
+      expect(item_attributes[:name]).to not_eq('Gym bag')
+      expect(item_attributes[:name]).to not_eq('Suitcase')
+
+      expect(item_attributes).to have_key([:description])
+      expect(item_attributes[:description]).to eq('desk')
+      expect(item_attributes[:description]).to not_eq('Candlestick')
+      expect(item_attributes[:description]).to not_eq('Rope bag')
+      expect(item_attributes[:description]).to not_eq('Gym bag')
+      expect(item_attributes[:description]).to not_eq('Suitcase')
+
+      expect(item_attributes).to have_key([:unit_price])
+      expect(item_attributes[:unit_price]).to eq('desk')
+      expect(item_attributes[:unit_price]).to not_eq('Candlestick')
+      expect(item_attributes[:unit_price]).to not_eq('Rope bag')
+      expect(item_attributes[:unit_price]).to not_eq('Gym bag')
+      expect(item_attributes[:unit_price]).to not_eq('Suitcase')
+
+      expect(item_attributes).to have_key([:merchant_id])
+      expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
   end
 end
