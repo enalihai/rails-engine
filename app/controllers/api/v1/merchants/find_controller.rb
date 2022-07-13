@@ -1,4 +1,4 @@
 class Api::V1::Merchants::FindController < ApplicationController
-  def show
+  def index
   end
 end
