@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Merchant and Item Search' do
-  describe 'GET /items/find request' do
-    it 'returns single item from case insensitive name query params' do
+  describe 'GET /items/find' do
+    it 'returns first item alphabetically::case insens query: :includes partial matches' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -66,38 +66,14 @@ RSpec.describe 'Merchant and Item Search' do
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
 
-    it 'returns an error object when name query=NOMATCH' do
-      merchant = Merchant.create!(name: 'Test Merchant')
-      item_1 = merchant.items.create!({
-        name: 'Candlestick',
-        description: 'Holds your candles',
-        unit_price: 40.05
-      })
-
-      search_params = {name: 'Desk'}
-      headers = {'CONTENT_TYPE' => 'application/json'}
-
-      get '/api/v1/items/find', headers: headers, params: search_params
-
-      expect(response).to be_successful
-
-      item = JSON.parse(response.body, symbolize_names: true)
-
-      expect(item[:data]).to be_a(Hash)
-      expect(item[:data][:id]).to be_a(String)
-      expect(item[:data][:title]).to be_a(String)
-    end
-
-    it '?name returns a single item alphabetically'
-    it '?min_price# should return equal to or greater than given price'
-    it '?max_price# should return equal to or less than given price'
-    it '?max_price=X&min_price=Y can be used in query'
+    it '?min_price= return equal to or greater than min_price'
+    it '?max_price= return equal to or less than max_price'
     it 'uses EITHER name param OR either/both price params'
     it 'uses BOTH name param AND either/both price params returns error'
   end
 
-  describe 'GET /items/find_all request' do
-    xit 'returns all items that match case insensitive query parameters' do
+  describe 'GET /items/find_all' do
+    xit 'returns array of items alphabetically::case insens query: :includes partial matches' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -139,17 +115,14 @@ RSpec.describe 'Merchant and Item Search' do
       # add more tests here after model AR / SQL
     end
 
-    it '?name=Name returns all items alphabetically'
-    it '?min_price# should return equal to or greater than given price'
-    it '?max_price# should return equal to or less than given price'
-    it '?max_price=X&min_price=Y can be used in query'
+    it '?min_price= return equal to or greater than min_price'
+    it '?max_price= return equal to or less than max_price'
     it 'uses EITHER name param OR either/both price params'
-    it 'uses BOTH name param AND either/both price params returns error'
   end
 
-  describe 'GET /merchants/find request' do
-    it 'single merchant from case insensitive name query params' do
-      merchant_1 = Merchant.create!(name: 'Animal House')
+  describe 'GET /merchants/find?name=query' do
+    it 'returns first merchant alphabetically from case insensitive name query' do
+      merchant_1 = Merchant.create!(name: 'Animal Pizza')
       merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_3 = Merchant.create!(name: 'Bills BBQ')
 
@@ -165,34 +138,12 @@ RSpec.describe 'Merchant and Item Search' do
       expect(merchant[:data]).to be_a(Hash)
       expect(merchant[:data][:type]).to eq('merchant')
       expect(merchant[:data][:attributes]).to be_a(Hash)
-      expect(merchant[:data][:attributes][:name]).to eq('Pangolier Pizza')
+      expect(merchant[:data][:attributes][:name]).to eq('Animal Pizza')
     end
-
-    it 'returns an error object when name query=NOMATCH' do
-      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
-      merchant_2 = Merchant.create!(name: 'Angels Pasta')
-      merchant_3 = Merchant.create!(name: 'Quick Dogs')
-
-      search_params = {name: 'Raditz Ramen'}
-      headers = {'CONTENT_TYPE' => 'application/json'}
-
-      get '/api/v1/merchants/find', headers: headers, params: search_params
-
-      expect(response).to be_successful
-
-      merchant = JSON.parse(response.body, symbolize_names: true)
-
-      expect(merchant[:data]).to be_a(Hash)
-      expect(merchant[:data][:id]).to be_a(String)
-      expect(merchant[:data][:title]).to be_a(String)
-    end
-
-    it '?name which returns name and description'
-    it '?name returns alphabetically'
   end
 
-  describe 'GET /merchants/find_all request' do
-    xit 'all merchants from case insensitive name query params' do
+  describe 'GET /merchants/find_all?name=query' do
+    xit 'returns array of merchants alphabetically::case insensitive query::includes partial matches' do
       merchant_1 = Merchant.create!(name: 'Animal House')
       merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_3 = Merchant.create!(name: 'Bills BBQ')
@@ -211,7 +162,74 @@ RSpec.describe 'Merchant and Item Search' do
       # add more tests here after model AR/SQL
     end
 
-    it '?name which returns name and description'
-    it '?name returns alphabetically'
+    it 'finds_all based on name and description'
+  end
+
+  describe 'EXTENSION #edge case testing' do
+    it 'items#find?name returns error object for query=NOMATCH' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+
+      search_params = {name: 'Desk'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(item[:data]).to be_a(Hash)
+      expect(item[:data][:id]).to be_a(String)
+      expect(item[:data][:title]).to be_a(String)
+    end
+
+    it 'items#find_all?name returns error object for query=NOMATCH'
+
+    it 'merchants#find?name returns error object for query=NOMATCH' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Angels Pasta')
+      merchant_3 = Merchant.create!(name: 'Quick Dogs')
+
+      search_params = {name: 'Raditz Ramen'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data]).to be_a(Hash)
+      expect(merchant[:data][:id]).to be_a(String)
+      expect(merchant[:data][:title]).to be_a(String)
+    end
+
+    xit 'merchants#find_all?name returns error object for query=NOMATCH' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Angels Pasta')
+      merchant_3 = Merchant.create!(name: 'Quick Dogs')
+
+      search_params = {name: 'Raditz Ramen'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data]).to be_a(Hash)
+      expect(merchant[:data][:id]).to be_a(String)
+      expect(merchant[:data][:title]).to be_a(String)
+    end
+
+    it '/items#find? using BOTH name param AND either/both price params returns error'
+
+    it '/items#find_all using BOTH name param AND either/both price params returns error'
   end
 end

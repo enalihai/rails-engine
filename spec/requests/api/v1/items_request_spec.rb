@@ -104,6 +104,8 @@ RSpec.describe 'Item API' do
       expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
 
+    it 'deletes an invoice if no items remain'
+
     it 'can update an items attributes' do
       merchant = create(:merchant)
       item = create(:item, merchant_id: merchant.id)
