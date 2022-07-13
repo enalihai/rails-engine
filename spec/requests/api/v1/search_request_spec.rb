@@ -30,11 +30,11 @@ RSpec.describe 'Merchant and Item Search' do
         unit_price: 38.04
       })
 
-      search_params = {name: '789654'}
+      search_params = {name: 'Desk'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find', headers: headers, params: search_params
-binding.pry
+
       expect(response).to be_successful
 
       item = JSON.parse(response.body, symbolize_names: true)
@@ -65,7 +65,29 @@ binding.pry
 
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
-    it 'returns '
+
+    it 'returns an error object with correct attributes' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+
+      search_params = {name: 'Desk'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(item[:data]).to be_a(Hash)
+      expect(item[:data][:id]).to be_a(String)
+      expect(item[:data][:title]).to be_a(String)
+    end
+
     it '?name returns a single item alphabetically'
     it '?min_price# should return equal to or greater than given price'
     it '?max_price# should return equal to or less than given price'
