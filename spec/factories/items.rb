@@ -3,6 +3,6 @@ FactoryBot.define do
     name {Faker::Name.name}
     description {Faker::Books::Dune.quote}
     unit_price {Faker::Number.number(digits: 4)}
-    # merchant_id { Merchant.last.id }
+    merchant_id { Merchant.last.id }
   end
 end

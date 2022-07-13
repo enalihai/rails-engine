@@ -6,8 +6,8 @@ Rails.application.routes.draw do
       end
 
       namespace :merchants do
-        resources :find, only: [:show], controller: :search_merchants
-        resources :find_all, only: [:index], controller: :search_merchants
+        resources :find, only: [:show]
+        resources :find_all, only: [:index]
       end
 
       resources :items do
@@ -15,8 +15,8 @@ Rails.application.routes.draw do
       end
 
       namespace :items do
-        resources :find, only: [:show], controller: :search_items
-        resources :find_all, only: [:index], controller: :search_items
+        resources :find, only: [:show]
+        resources :find_all, only: [:index]
       end
     end
   end
