@@ -97,7 +97,27 @@ RSpec.describe 'Merchant and Item Search' do
   end
 
   describe 'GET /merchants/find request' do
-    it 'single merchant from case insensitive query params'
+    it 'single merchant from case insensitive query params' do
+      merchant_1 = Merchant.create!(name: 'Animal House')
+      merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_3 = Merchant.create!(name: 'Bills BBQ')
+
+
+      search_params = {name: 'Pizza'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find', headers: headers, params: search_params
+
+      expect(response).to be_successful
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data]).to be_a(Hash)
+      expect(merchant[:data][:type]).to eq('merchant')
+      expect(merchant[:data][:attributes]).to be_a(Hash)
+      expect(merchant[:data][:attributes][:name]).to be_a(String)
+    end
+
     it '?name which returns name and description'
     it '?name returns alphabetically'
   end
