@@ -66,7 +66,7 @@ RSpec.describe 'Merchant and Item Search' do
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
 
-    it 'returns an error object when name query params invlaid' do
+    it 'returns an error object when name query params invalid' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -151,7 +151,6 @@ RSpec.describe 'Merchant and Item Search' do
       merchant_1 = Merchant.create!(name: 'Animal House')
       merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_3 = Merchant.create!(name: 'Bills BBQ')
-
 
       search_params = {name: 'pIzZa'}
       headers = {'CONTENT_TYPE' => 'application/json'}
