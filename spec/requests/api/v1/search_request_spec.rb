@@ -173,8 +173,6 @@ RSpec.describe 'Merchant and Item Search' do
   end
 
   describe 'EXTENSION #edge case / sad path testing' do
-    it 'find_all searches based on :name or :description#POSTMAN ISSUE'
-
     it 'items#find?name returns error object for query=NOMATCH' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
@@ -287,5 +285,27 @@ RSpec.describe 'Merchant and Item Search' do
     it '/items#find? using BOTH name param AND either/both price params returns error'
 
     it '/items#find_all using BOTH name param AND either/both price params returns error'
+
+    it 'for any BLANK/Nil/invalid_formatted query_params returns specificied json error' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+
+      query_params = {name: ''}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      # binding.pry
+      get '/api/v1/items/find', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      item = JSON.parse(response.body, symbolize_names: true)
+      expect(item[:data]).to be_a(Hash)
+      expect(item[:data][:id]).to be_a(String)
+      expect(item[:data][:title]).to be_a(String)
+    end
   end
 end

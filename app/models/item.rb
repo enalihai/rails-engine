@@ -6,10 +6,10 @@ class Item < ApplicationRecord
   validates_presence_of :name, :description, :unit_price
 
   def self.find_item(query)
-    Item.where('name ILIKE ?', "%#{query}%").order(:name).first
+    where('name ILIKE ?', "%#{query}%").order(:name).first
   end
 
   def self.find_all_items(query)
-    Item.where('name ILIKE ?', "%#{query}%").order(:name)
+    where('name ILIKE ?', "%#{query}%").order(:name)
   end
 end
