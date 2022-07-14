@@ -73,8 +73,9 @@ RSpec.describe 'Merchant and Item Search' do
   end
 
   describe 'GET /items/find_all' do
-    xit 'returns array of items alphabetically::case insens query: :includes partial matches' do
+    it 'returns array of items alphabetically::case insens query: :includes partial matches' do
       merchant = Merchant.create!(name: 'Test Merchant')
+      merchant_2 = Merchant.create!(name: 'Sad Path')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
         description: 'Holds your candles',
@@ -100,16 +101,21 @@ RSpec.describe 'Merchant and Item Search' do
         description: 'Holds your clothes',
         unit_price: 38.04
       })
+      item_6 = merchant_2.items.create!({
+        name: 'Unhappy Meal',
+        description: 'Lets you down hard',
+        unit_price: 14.59
+      })
 
-      search_params = {name: 'BaG'}
+      query_params = 'BaG'
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find_all', headers: headers, params: search_params
+      get '/api/v1/items/find_all', headers: headers, params: query_params
 
       expect(response).to be_successful
 
       items = JSON.parse(response.body, symbolize_names: true)
-
+binding.pry
       expect(items).to be_a(Hash)
       expect(items[:data]).to be_an(Array)
       # add more tests here after model AR / SQL
@@ -143,29 +149,33 @@ RSpec.describe 'Merchant and Item Search' do
   end
 
   describe 'GET /merchants/find_all?name=query' do
-    xit 'returns array of merchants alphabetically::case insensitive query::includes partial matches' do
-      merchant_1 = Merchant.create!(name: 'Animal House')
-      merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
-      merchant_3 = Merchant.create!(name: 'Bills BBQ')
+    it 'returns array alphabetically::case insensitive:includes partial matches' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Bills Pizza')
+      merchant_3 = Merchant.create!(name: 'Rafis Ramen')
+      merchant_4 = Merchant.create!(name: 'Animal Pizza')
 
-      search_params = {name: 'pIzZa'}
+      query_params = {name: 'pIzZa'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/merchants/find_all', headers: headers, params: search_params
+      get '/api/v1/merchants/find_all', headers: headers, params: query_params
 
       expect(response).to be_successful
 
       merchants = JSON.parse(response.body, symbolize_names: true)
 
-      expect(merchants).to be_a(Hash)
       expect(merchants[:data]).to be_an(Array)
-      # add more tests here after model AR/SQL
+      expect(merchants[:data].count).to eq(3)
+      expect(merchants[:data][0][:attributes][:name]).to eq(merchant_4.name)
+      expect(merchants[:data][1][:attributes][:name]).to eq(merchant_2.name)
+      expect(merchants[:data][2][:attributes][:name]).to eq(merchant_1.name)
+      expect(merchants[:data]).to_not include(merchant_3)
     end
-
-    it 'finds_all based on name and description'
   end
 
-  describe 'EXTENSION #edge case testing' do
+  describe 'EXTENSION #edge case / sad path testing' do
+    it 'find_all searches based on :name or :description#POSTMAN ISSUE'
+
     it 'items#find?name returns error object for query=NOMATCH' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
@@ -209,7 +219,7 @@ RSpec.describe 'Merchant and Item Search' do
       expect(merchant[:data][:title]).to be_a(String)
     end
 
-    xit 'merchants#find_all?name returns error object for query=NOMATCH' do
+    it 'merchants#find_all?name returns error object for query=NOMATCH' do
       merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_2 = Merchant.create!(name: 'Angels Pasta')
       merchant_3 = Merchant.create!(name: 'Quick Dogs')
@@ -223,9 +233,10 @@ RSpec.describe 'Merchant and Item Search' do
 
       merchants = JSON.parse(response.body, symbolize_names: true)
 
-      expect(merchant[:data]).to be_a(Hash)
-      expect(merchant[:data][:id]).to be_a(String)
-      expect(merchant[:data][:title]).to be_a(String)
+      expect(merchants[:data]).to be_a(Hash)
+      expect(merchants[:data][:id]).to be_a(String)
+      expect(merchants[:data][:title]).to be_a(String)
+      expect(merchants[:data][:title]).to eq('No results found for user input')
     end
 
     it '/items#find? using BOTH name param AND either/both price params returns error'

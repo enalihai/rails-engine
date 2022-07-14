@@ -30,7 +30,7 @@ RSpec.describe 'Item API' do
       end
     end
 
-    it 'returns a single item based on id and checks their keys' do
+    it 'returns a single item based on id query and checks their keys' do
       merchant = create(:merchant)
       item_id = create(:item, merchant_id: merchant.id).id
 
@@ -104,7 +104,7 @@ RSpec.describe 'Item API' do
       expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    it 'deletes an invoice if no items remain'
+    it 'deletes an invoice after destroy if no items remain'
 
     it 'can update an items attributes' do
       merchant = create(:merchant)

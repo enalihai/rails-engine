@@ -1,3 +1,7 @@
+require 'simplecov'
+SimpleCov.start 'rails'
+SimpleCov.add_filter ['app/jobs', 'app/mailers', 'app/channels']
+
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
@@ -23,5 +27,5 @@ begin
       with.test_framework :rspec
       with.library :rails
     end
-  end 
+  end
 end
