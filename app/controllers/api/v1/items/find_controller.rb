@@ -1,7 +1,7 @@
 class Api::V1::Items::FindController < ApplicationController
   def index
-    items = Item.where('name ILIKE ?', "%#{params[:name]}%")
-    if item == nil
+    items = Item.find_all_items(params[:name])
+    if items == nil
       render json: ErrorSerializer.no_results_found
     else
       render json: ItemSerializer.new(items)
@@ -9,7 +9,7 @@ class Api::V1::Items::FindController < ApplicationController
   end
 
   def show
-    item = Item.where('name ILIKE ?', "%#{params[:name]}%").first
+    item = Item.find_item(params[:name])
     if item == nil
       render json: ErrorSerializer.no_results_found
     else
