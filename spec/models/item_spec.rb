@@ -47,18 +47,13 @@ RSpec.describe Item, type: :model do
         description: 'Lets you down hard',
         unit_price: 14.59
       })
-
       query_params = 'BaG'
-      headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find', headers: headers, params: query_params
+      item = Item.find_item(query_params)
 
-      expect(response).to be_successful
-
-      items = JSON.parse(response.body, symbolize_names: true)
-binding.pry
-      expect(items).to be_a(Hash)
-      expect(items[:data]).to be_an(Array)
+      expect(item).to eq('Gym bag')
+      binding.pry
+      expect(item[:data]).to be_an(Array)
     end
 
     it '#find_min_price(min_int) returns single item closest to min price'
@@ -68,7 +63,7 @@ binding.pry
 
   describe '.self#find_all' do
     it '#find_all_items(query): array of items by alphbet::name, no case' do
-        
+
     end
 
     it '#find_all_min(min_int): array of items >= min price'

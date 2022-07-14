@@ -116,7 +116,7 @@ RSpec.describe 'Merchant and Item Search' do
 
       items = JSON.parse(response.body, symbolize_names: true)
 binding.pry
-      expect(items).to be_a(Hash)
+      expect(items).to have_key(:data)
       expect(items[:data]).to be_an(Array)
       # add more tests here after model AR / SQL
     end
