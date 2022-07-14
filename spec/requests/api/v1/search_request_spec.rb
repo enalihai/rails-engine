@@ -30,10 +30,10 @@ RSpec.describe 'Merchant and Item Search' do
         unit_price: 38.04
       })
 
-      search_params = {name: 'DeSk'}
+      query_params = {name: 'DeSk'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find', headers: headers, params: search_params
+      get '/api/v1/items/find', headers: headers, params: query_params
 
       expect(response).to be_successful
 
@@ -107,7 +107,7 @@ RSpec.describe 'Merchant and Item Search' do
         unit_price: 14.59
       })
 
-      query_params = 'BaG'
+      query_params = {name: 'BaG'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find_all', headers: headers, params: query_params
@@ -115,7 +115,6 @@ RSpec.describe 'Merchant and Item Search' do
       expect(response).to be_successful
 
       items = JSON.parse(response.body, symbolize_names: true)
-binding.pry
       expect(items).to have_key(:data)
       expect(items[:data]).to be_an(Array)
       # add more tests here after model AR / SQL
@@ -132,10 +131,10 @@ binding.pry
       merchant_2 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_3 = Merchant.create!(name: 'Bills BBQ')
 
-      search_params = {name: 'pIzZa'}
+      query_params = {name: 'pIzZa'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/merchants/find', headers: headers, params: search_params
+      get '/api/v1/merchants/find', headers: headers, params: query_params
 
       expect(response).to be_successful
 
@@ -184,10 +183,10 @@ binding.pry
         unit_price: 40.05
       })
 
-      search_params = {name: 'Desk'}
+      query_params = {name: 'Desk'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find', headers: headers, params: search_params
+      get '/api/v1/items/find', headers: headers, params: query_params
 
       expect(response).to be_successful
 
@@ -198,17 +197,63 @@ binding.pry
       expect(item[:data][:title]).to be_a(String)
     end
 
-    it 'items#find_all?name returns error object for query=NOMATCH'
+    it 'items#find_all?name returns error object for query=NOMATCH' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      merchant_2 = Merchant.create!(name: 'Sad Path')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 38.85
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 42.75
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Overnight bag',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+      item_6 = merchant_2.items.create!({
+        name: 'Unhappy Meal',
+        description: 'Lets you down hard',
+        unit_price: 14.59
+      })
+      query_params = {name: 'zwkq'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)
+
+      expect(items[:data]).to be_a(Hash)
+      expect(items[:data][:id]).to be_a(String)
+      expect(items[:data][:title]).to be_a(String)
+      expect(items[:data][:title]).to eq('No results found for user input')
+    end
 
     it 'merchants#find?name returns error object for query=NOMATCH' do
       merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
       merchant_2 = Merchant.create!(name: 'Angels Pasta')
       merchant_3 = Merchant.create!(name: 'Quick Dogs')
 
-      search_params = {name: 'Raditz Ramen'}
+      query_params = {name: 'Raditz Ramen'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/merchants/find', headers: headers, params: search_params
+      get '/api/v1/merchants/find', headers: headers, params: query_params
 
       expect(response).to be_successful
 
@@ -224,10 +269,10 @@ binding.pry
       merchant_2 = Merchant.create!(name: 'Angels Pasta')
       merchant_3 = Merchant.create!(name: 'Quick Dogs')
 
-      search_params = {name: 'Raditz Ramen'}
+      query_params = {name: 'Raditz Ramen'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/merchants/find', headers: headers, params: search_params
+      get '/api/v1/merchants/find', headers: headers, params: query_params
 
       expect(response).to be_successful
 

@@ -47,13 +47,11 @@ RSpec.describe Item, type: :model do
         description: 'Lets you down hard',
         unit_price: 14.59
       })
-      query_params = 'BaG'
 
-      item = Item.find_item(query_params)
+      item = Item.find_item('BaG')
 
-      expect(item).to eq('Gym bag')
-      binding.pry
-      expect(item[:data]).to be_an(Array)
+      expect(item).to eq(item_4)
+      expect(item).to be_an(Item)
     end
 
     it '#find_min_price(min_int) returns single item closest to min price'
