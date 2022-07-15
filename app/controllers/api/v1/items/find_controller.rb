@@ -1,8 +1,8 @@
 class Api::V1::Items::FindController < ApplicationController
-  include Paramaterizer
+  # include Parameterizer
 
   def index
-    validate_query
+    # if valid_query?(params)
     items = Item.find_all_items(params[:name])
     if items == nil
       render json: ErrorSerializer.no_results_found
@@ -12,12 +12,15 @@ class Api::V1::Items::FindController < ApplicationController
   end
 
   def show
-    validate_query
-    item = Item.find_item(params[:name])
-    if item == nil
-      render json: ErrorSerializer.no_results_found
-    else
-      render json: ItemSerializer.new(item)
-    end
+    # if valid_query?(params)
+      item = Item.find_item(params[:name])
+      if !item == nil
+        render json: ErrorSerializer.no_results_found
+      else
+        render json: ItemSerializer.new(item)
+      end
+    # else
+    #   render json: ErrorSerializer.invalid_parameters
+    # end
   end
 end
