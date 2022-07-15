@@ -1,35 +1,34 @@
 class Api::V1::Merchants::FindController < ApplicationController
-  # include Parameterizer
+  include Parameterable
+  before_action :set_query_params, only: [:show, :index]
+  # before_action :validate_params, only: [:show, :index]
 
   def index
-    # if valid_query?(params[:name])
-      merchants = Merchant.find_all_merchants(params[:name])
+      merchants = Merchant.find_all_merchants(@query)
       if merchants == nil
-        render json: ErrorSerializer.no_results_found, status: 400
+        render json: ErrorSerializer.no_results_found
       else
         render json: MerchantSerializer.new(merchants)
       end
-    # else
-    #   render json: ErrorSerializer.invalid_parameters
-    # end
   end
 
   def show
-    # if valid_query?(params[:name])
-      merchant = Merchant.find_merchant(params[:name])
-      if merchant == nil
-        render json: ErrorSerializer.no_results_found, status: 400
-      else
-        render json: MerchantSerializer.new(merchant)
-      end
-    # else
-    #   render json: ErrorSerializer.invalid_parameters
-    # end
+    merchant = Merchant.find_merchant(@query)
+    if merchant == nil
+      render json: ErrorSerializer.no_results_found
+    else
+      render json: MerchantSerializer.new(merchant)
+    end
   end
 
-  # private
-  #   def validate_merchant
-  #     merchant = Merchant.find_merchant(params[:name])
-  #   end
+  private
+  def set_query_params
+    @query = params[:name]
+  end
 
+  # def validate_params
+  #   if !valid_query?(@query)
+  #     render json: ErrorSerializer.invalid_parameters
+  #   end
+  # end
 end

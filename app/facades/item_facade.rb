@@ -1,73 +1,90 @@
 class ItemFacade
-  def self.search(query_params)
-    binding.pry
-    if query_params[:name].present? && !query_params[:min_price].present? && !query_params[:min_price].present?
-      find_item_by_name(query_params[:name])
-    elsif !query_params[:name].present? && query_params[:min_price].present? && !query_params[:max_price].present?
-      find_min_item(query_params[:min_price])
-    elsif !query_params[:name].present && !query_params[:min_price].present? && query_params[:max_price].present?
-      find_max_item(query_params[:max_price])
-    elsif !query_params[:name].present? && query_params[:min_price].present? && query_params[:max_price].present?
-      find_items_within_range(query_params[:min_price], query_params[:max_price])
+  include Parameterable
+
+  def self.search(@params)
+    if name_only?(@params)
+      find_item_by_name(@params[:name])
+    elsif just_min?(@params)
+      find_min_item(@params[:min_price].to_f)
+    elsif just_min?(@params)
+      find_max_item(@params[:max_price].to_f)
+    elsif min_to_max?(@params)
+      find_items_within_range(@params[:min_price].to_f, @params[:max_price].to_f)
     else
-      ErrorSerializer.nil_query
+      { data: { id: 'error', title: 'No results found on database' }, status: 400 }
     end
+  end
+
+  def name_only?(@params)
+    return true if (@params[:name].present? && !@params[:min_price].present? && !@params[:min_price].present?)
+  end
+
+  def just_min?(@params)
+    return true if !@params[:name].present? && @params[:min_price].present? && !@params[:max_price].present?
+  end
+
+  def just_max?(@params)
+    return true if !@params[:name].present? && !@params[:min_price].present? && @params[:max_price].present?
+  end
+
+  def min_to_max(@params)
+    return true if !@params[:name].present? && @params[:min_price].present? && @params[:max_price].present?
   end
 
   def self.find_item_by_name(name)
-    query_item = Item.find_item(name)
-    if query_item == nil
-      ErrorSerializer.no_results_found
+    item = Item.find_item(name)
+    if item == nil
+      { data: { id: 'error', title: 'No results found on database' }, status: 400 }
     else
-      binding.pry
-      ItemSerializer.new(query_item)
+      item
     end
   end
 
-  def self.find_all_items_by_name(query_params)
-    name = query_params[:name]
-    query_items = Item.find_all_items(name)
-    if query_items == nil
-      render json: ErrorSerializer.no_results_found, status: 400
+  def self.find_all_items_by_name(name)
+    items = Item.find_all_items(name)
+    if items == nil
+      { data: { id: 'error', title: 'No results found on database' }, status: 400 }
     else
-      query_items
+      items
     end
   end
 
-  def self.find_min_item(query_params)
+  def self.find_min_item(min)
+  binding.pry
     item = Item.find_by_min(min)
     if item == nil
-      render json: ErrorSerializer.no_results_found, status: 400
+      { data: { id: 'error', title: 'No results found on database' }, status: 400 }
     else
-      ItemSerializer.new(item)
+      item
     end
   end
 
-  def self.find_max_item(query_params)
-    max = query_params[:max_price].to_f
+  def self.find_max_item(max)
     item = Item.find_by_max(max)
     if item == nil
-      render json: ErrorSerializer.no_results_found, status: 400
+      { data: { id: 'error', title: 'No results found on database' }, status: 400 }
     else
-      ItemSerializer.new(item)
+      item
     end
   end
 
-  def self.find_items_within_range(query_params)
-    min = query_params[:min_price].to_f
-    max = query_params[:max_price].to_f
+  def self.find_items_within_range(min, max)
     items = Item.find_min_max_item(min, max)
     if items == nil
-      render json: ErrorSerializer.no_results_found, status: 400
+      { data: { id: 'error', title: 'No results found on database' }, status: 400 }
     else
-      ItemSerializer.new(items)
+      items
     end
   end
 
-
   private
+    def set_query_params
+      params = {name: params[:name], min_price: params[:min_price], max_price: params[:max_price]}
+    end
 
-  def query_params
-    params.permit(:name, :min_price, :max_price)
-  end
+    def validate_params
+      if valid_query?(@params) == false
+        render json: ErrorSerializer.invalid_parameters#{ error: 'Invalid Parameters: cant be nil'}, status: 400
+      end
+    end
 end

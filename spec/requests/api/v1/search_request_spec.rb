@@ -34,11 +34,10 @@ RSpec.describe 'Merchant and Item Search' do
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find', headers: headers, params: query_params
-binding.pry
-      expect(response).to be_successful
+
+      # expect(response).to be_successful
 
       item = JSON.parse(response.body, symbolize_names: true)
-
       expect(item).to be_a(Hash)
       expect(item[:data].count).to eq(3)
       expect(item[:data][:type]).to eq('item')
@@ -94,10 +93,10 @@ binding.pry
         unit_price: 38.04
       })
 
-      query_params = {min_price: 38.45}
+      min = {min_price: 38.45}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find', headers: headers, params: query_params
+      get '/api/v1/items/find', headers: headers, params: min[:min_price]
 
       expect(response).to be_successful
 
