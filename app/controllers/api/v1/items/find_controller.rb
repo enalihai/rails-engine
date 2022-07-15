@@ -2,11 +2,10 @@ class Api::V1::Items::FindController < ApplicationController
   include Parameterable
 
   def index
-    items = Item.find_all_items(params[:name])
-    if items == nil
-      render json: ErrorSerializer.no_results_found, status: 400
+    if valid_query?(params)
+      render json: ItemFacade.search(params)
     else
-      render json: ItemSerializer.new(items)
+      render json: ErrorSerializer.invalid_parameters, status: 400
     end
   end
 
@@ -17,6 +16,7 @@ class Api::V1::Items::FindController < ApplicationController
       render json: ErrorSerializer.invalid_parameters, status: 400
     end
   end
+end
     # if valid_query?(params)
       # item = Item.find_item(params[:name])
       # if !item == nil
@@ -34,6 +34,3 @@ class Api::V1::Items::FindController < ApplicationController
   #       render json: ErrorSerializer.invalid_parameters, status: 404
   #     end
   #   end
-
-
-end
