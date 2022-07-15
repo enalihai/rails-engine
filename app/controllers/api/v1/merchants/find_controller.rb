@@ -5,7 +5,7 @@ class Api::V1::Merchants::FindController < ApplicationController
     # if valid_query?(params[:name])
       merchants = Merchant.find_all_merchants(params[:name])
       if merchants == nil
-        render json: ErrorSerializer.no_results_found
+        render json: ErrorSerializer.no_results_found, status: 400
       else
         render json: MerchantSerializer.new(merchants)
       end
@@ -18,7 +18,7 @@ class Api::V1::Merchants::FindController < ApplicationController
     # if valid_query?(params[:name])
       merchant = Merchant.find_merchant(params[:name])
       if merchant == nil
-        render json: ErrorSerializer.no_results_found
+        render json: ErrorSerializer.no_results_found, status: 400
       else
         render json: MerchantSerializer.new(merchant)
       end

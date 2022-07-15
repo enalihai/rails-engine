@@ -1,4 +1,4 @@
-module Parameterizer
+module Parameterable
   def valid_query?(params)
     if params[:name] == nil && params[:min_price] == nil && params[:max_price] == nil
       return false
