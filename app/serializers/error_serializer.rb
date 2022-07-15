@@ -4,7 +4,7 @@ class ErrorSerializer
     data:
       {
         id: 'error',
-        title: 'Invalid input'
+        title: 'Invalid input: Formatting error'
       }
     }
   end
@@ -15,6 +15,36 @@ class ErrorSerializer
       {
         id: 'error',
         title: "No results found for user input"
+      }
+    }
+  end
+
+  def self.cant_be_blank
+    {
+    data:
+      {
+        id: 'error',
+        title: 'Invalid input: Search cant be blank'
+      }
+    }
+  end
+
+  def self.nil_query
+    {
+    data:
+      {
+        id: 'error',
+        title: 'Invalid input: nil query bad'
+      }
+    }
+  end
+
+  def self.min_greater_than_max
+    {
+    data:
+      {
+        id: 'error',
+        title: 'Invalid input: min price must be < max price'
       }
     }
   end

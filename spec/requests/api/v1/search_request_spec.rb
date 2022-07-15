@@ -304,8 +304,13 @@ RSpec.describe 'Merchant and Item Search' do
 
       item = JSON.parse(response.body, symbolize_names: true)
       expect(item[:data]).to be_a(Hash)
-      expect(item[:data][:id]).to be_a(String)
-      expect(item[:data][:title]).to be_a(String)
+
+      # get '/api/v1/items/find', headers: headers, params: query_params
+      #
+      # expect(response).to be_successful
+      #
+      # item = JSON.parse(response.body, symbolize_names: true)
+      # expect(item[:data]).to be_a(Hash)
     end
   end
 end
