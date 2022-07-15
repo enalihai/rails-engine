@@ -1,7 +1,4 @@
 class Api::V1::Items::FindController < ApplicationController
-  include Parameterizer
-  before_action :query_check
-
   def index
     items = Item.find_all_items(params[:name])
     if items == nil
@@ -12,7 +9,6 @@ class Api::V1::Items::FindController < ApplicationController
   end
 
   def show
-    # binding.pry
     render json: ItemFacade.search(params)
     # if valid_query?(params)
       # item = Item.find_item(params[:name])
@@ -26,8 +22,12 @@ class Api::V1::Items::FindController < ApplicationController
     # end
   end
 
-  private
-    def query_check
-      render json: ErrorSerializer.invalid_parameters, status: 404 if valid_query?(params) != true
-    end
+  # private
+  #   def query_check
+  #     if valid_query?(params) != true
+  #       render json: ErrorSerializer.invalid_parameters, status: 404
+  #     end
+  #   end
+
+
 end
