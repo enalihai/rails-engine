@@ -34,7 +34,7 @@ RSpec.describe 'Merchant and Item Search' do
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find', headers: headers, params: query_params
-
+binding.pry
       expect(response).to be_successful
 
       item = JSON.parse(response.body, symbolize_names: true)
@@ -166,7 +166,7 @@ RSpec.describe 'Merchant and Item Search' do
       expect(response).to be_successful
 
       items = JSON.parse(response.body, symbolize_names: true)
-  
+
       expect(items).to have_key(:data)
       expect(items[:data]).to be_a(Hash)
       # add more tests here after model AR / SQL

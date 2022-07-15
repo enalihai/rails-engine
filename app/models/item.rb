@@ -14,16 +14,17 @@ class Item < ApplicationRecord
   end
 
   def self.find_by_min(min_price)
-    # binding.pry
-    where("items.unit_price > ?", min_price).order(:unit_price).first
+    binding.pry
+    where("items.unit_price > ?", min_price).order(:name).first
   end
 
   def self.find_max_item(max_price)
-    where("items.unit_price < ?", max_price).sort_by(:unit_price).first
+    binding.pry
+    where("items.unit_price <= ?", max_price).sort_by(:unit_price).first
   end
 
   def self.find_min_max_item(min_price, max_price)
     binding.pry
-    where("items.unit_price > ? AND items.unit_price < ?", min_price, max_price).sort_by(&:unit_price).last
+    where("items.unit_price > ? AND items.unit_price < ?", min_price, max_price).sort_by(:unit_price).last
   end
 end
