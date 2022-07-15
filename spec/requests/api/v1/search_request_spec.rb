@@ -66,7 +66,58 @@ RSpec.describe 'Merchant and Item Search' do
       expect(item_attributes[:merchant_id]).to eq(merchant.id)
     end
 
-    it '?min_price= return equal to or greater than min_price'
+    it '?min_price=query with price closest to >= min_price' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 42.75
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 38.85
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Suitcase',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+
+      query_params = {min_price: 38.45}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      min_item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(min_item).to be_a(Hash)
+      expect(min_item[:data].count).to eq(3)
+      expect(min_item[:data][:attributes].count).to eq(4)
+
+      min_item = min_item[:data][:attributes]
+
+      expect(min_item[:name]).to eq('Rope bag')
+      expect(min_item[:name]).to_not eq('desk')
+      expect(min_item[:unit_price]).to eq(38.85)
+      expect(min_item[:unit_price]).to_not eq(40.05)
+      expect(min_item[:unit_price]).to_not eq(42.75)
+      expect(min_item[:unit_price]).to_not eq(32.74)
+      expect(min_item[:unit_price]).to_not eq(38.04)
+    end
+
     it '?max_price= return equal to or less than max_price'
     it 'uses EITHER name param OR either/both price params'
     it 'uses BOTH name param AND either/both price params returns error'
@@ -173,6 +224,7 @@ RSpec.describe 'Merchant and Item Search' do
   end
 
   describe 'EXTENSION #edge case / sad path testing' do
+
     it 'items#find?name returns error object for query=NOMATCH' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
@@ -282,11 +334,31 @@ RSpec.describe 'Merchant and Item Search' do
       expect(merchants[:data][:title]).to eq('No results found for user input')
     end
 
-    it '/items#find? using BOTH name param AND either/both price params returns error'
+    it '/items#find? using BOTH name param AND either/both price params returns error' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+
+      query_params = {name: 'Candlestick', min_price: 38.99}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: query_params
+
+      expect(response.status).to eq(404)
+
+      error = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error[:data]).to be_a(Hash)
+      expect(error[:data][:id]).to eq('error')
+      expect(error[:data][:title]).to eq('Invalid input: Formatting error')
+    end
 
     it '/items#find_all using BOTH name param AND either/both price params returns error'
 
-    it 'for any BLANK/Nil/invalid_formatted query_params returns specificied json error' do
+    it 'for any BLANK/Nil/invalid query_params returns specificied json error' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -298,12 +370,17 @@ RSpec.describe 'Merchant and Item Search' do
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       # binding.pry
-      # get '/api/v1/items/find', headers: headers, params: query_params
-      #
+      get '/api/v1/items/find', headers: headers, params: query_params
+
       # binding.pry
-      # expect(response).to be_successful
-      # item = JSON.parse(response.body, symbolize_names: true)
-      # expect(item[:data]).to be_a(Hash)
+
+      expect(response.status).to eq(404)
+
+      error = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error[:data]).to be_a(Hash)
+      expect(error[:data][:id]).to eq('error')
+      expect(error[:data][:title]).to eq('Invalid input: Formatting error')
 
       # get '/api/v1/items/find', headers: headers, params: query_params
       #
