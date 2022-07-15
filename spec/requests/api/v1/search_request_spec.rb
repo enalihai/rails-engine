@@ -305,7 +305,7 @@ RSpec.describe 'Merchant and Item Search' do
 
       get '/api/v1/merchants/find', headers: headers, params: query_params
 
-      expect(response).to be_successful
+      expect(response.status).to eq(400)
 
       merchant = JSON.parse(response.body, symbolize_names: true)
 
@@ -324,7 +324,7 @@ RSpec.describe 'Merchant and Item Search' do
 
       get '/api/v1/merchants/find', headers: headers, params: query_params
 
-      expect(response).to be_successful
+      expect(response.status).to eq(400)
 
       merchants = JSON.parse(response.body, symbolize_names: true)
 
@@ -347,7 +347,7 @@ RSpec.describe 'Merchant and Item Search' do
 
       get '/api/v1/items/find', headers: headers, params: query_params
 
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
 
       error = JSON.parse(response.body, symbolize_names: true)
 
@@ -374,7 +374,7 @@ RSpec.describe 'Merchant and Item Search' do
 
       # binding.pry
 
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
 
       error = JSON.parse(response.body, symbolize_names: true)
 
