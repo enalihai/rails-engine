@@ -132,4 +132,181 @@ RSpec.describe 'Item API' do
       expect(response).to have_http_status(404)
     end
   end
+
+  describe 'GET /items/find' do
+    it 'returns first item alphabetically::case insens query: :includes partial matches' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 38.85
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 42.75
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Suitcase',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+
+      query_params = {name: 'DeSk'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(item).to be_a(Hash)
+      expect(item[:data].count).to eq(3)
+      expect(item[:data][:type]).to eq('item')
+
+      item_attributes = item[:data][:attributes]
+
+      expect(item_attributes[:name]).to eq('desk')
+      expect(item_attributes[:name]).to_not eq('Candlestick')
+      expect(item_attributes[:name]).to_not eq('Rope bag')
+      expect(item_attributes[:name]).to_not eq('Gym bag')
+      expect(item_attributes[:name]).to_not eq('Suitcase')
+
+      expect(item_attributes[:description]).to eq('Holds your documents')
+      expect(item_attributes[:description]).to_not eq('Holds your candles')
+      expect(item_attributes[:description]).to_not eq('Holds your rope')
+      expect(item_attributes[:description]).to_not eq('Holds your gym clothes')
+      expect(item_attributes[:description]).to_not eq('Holds your clothes')
+
+      expect(item_attributes[:unit_price]).to eq(38.85)
+      expect(item_attributes[:unit_price]).to_not eq(40.05)
+      expect(item_attributes[:unit_price]).to_not eq(42.75)
+      expect(item_attributes[:unit_price]).to_not eq(32.74)
+      expect(item_attributes[:unit_price]).to_not eq(38.04)
+
+      expect(item_attributes[:merchant_id]).to eq(merchant.id)
+    end
+
+    it '?min_price=query with price closest to >= min_price' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 42.75
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 38.85
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Suitcase',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+
+      query_params = {min_price: 38.45}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      min_item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(min_item).to be_a(Hash)
+      expect(min_item[:data].count).to eq(3)
+      expect(min_item[:data][:attributes].count).to eq(4)
+
+      min_item = min_item[:data][:attributes]
+
+      expect(min_item[:name]).to eq('Rope bag')
+      expect(min_item[:name]).to_not eq('desk')
+      expect(min_item[:unit_price]).to eq(38.85)
+      expect(min_item[:unit_price]).to_not eq(40.05)
+      expect(min_item[:unit_price]).to_not eq(42.75)
+      expect(min_item[:unit_price]).to_not eq(32.74)
+      expect(min_item[:unit_price]).to_not eq(38.04)
+    end
+
+    it '?max_price= return equal to or less than max_price'
+    it 'uses EITHER name param OR either/both price params'
+    it 'uses BOTH name param AND either/both price params returns error'
+  end
+
+  describe 'GET /items/find_all' do
+    it 'returns array of items alphabetically::case insens query: :includes partial matches' do
+      merchant = Merchant.create!(name: 'Test Merchant')
+      merchant_2 = Merchant.create!(name: 'Sad Path')
+      item_1 = merchant.items.create!({
+        name: 'Candlestick',
+        description: 'Holds your candles',
+        unit_price: 40.05
+      })
+      item_2 = merchant.items.create!({
+        name: 'desk',
+        description: 'Holds your documents',
+        unit_price: 38.85
+      })
+      item_3 = merchant.items.create!({
+        name: 'Rope bag',
+        description: 'Holds your rope',
+        unit_price: 42.75
+      })
+      item_4 = merchant.items.create!({
+        name: 'Gym bag',
+        description: 'Holds your gym clothes',
+        unit_price: 32.74
+      })
+      item_5 = merchant.items.create!({
+        name: 'Overnight bag',
+        description: 'Holds your clothes',
+        unit_price: 38.04
+      })
+      item_6 = merchant_2.items.create!({
+        name: 'Unhappy Meal',
+        description: 'Lets you down hard',
+        unit_price: 14.59
+      })
+
+      query_params = {name: 'BaG'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/items/find_all', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)
+  
+      expect(items).to have_key(:data)
+      expect(items[:data]).to be_a(Hash)
+      # add more tests here after model AR / SQL
+    end
+
+    it '?min_price= return equal to or greater than min_price'
+    it '?max_price= return equal to or less than max_price'
+    it 'uses EITHER name param OR either/both price params'
+  end
+
 end
