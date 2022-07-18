@@ -3,6 +3,8 @@ class Merchant < ApplicationRecord
   has_many :invoices
   has_many :customers, through: :invoices
 
+  validates :attributes, :name
+  
   def self.find_merchant(query)
     where("name ILIKE ?", "%#{query}%").order(:name).first
   end
