@@ -2,35 +2,27 @@ class Api::V1::Items::FindController < ApplicationController
   include Parameterable
 
   def index
-    if valid_query?(params)
-      render json: ItemFacade.search(params)
-    else
-      render json: ErrorSerializer.invalid_parameters, status: 400
-    end
+    # if !valid_query?(params)
+    #   render json: ErrorSerializer.invalid_query, status: 400
+    # else
+      item_array = Item.search(params)
+      render json: ItemSerializer.new(item_array)
+    # end
   end
 
   def show
-    if valid_query?(params)
-      render json: ItemFacade.search(params)
-    else
-      render json: ErrorSerializer.invalid_parameters, status: 400
-    end
+    # if !valid_query?(params)
+    #   render json: ErrorSerializer.invalid_query, status: 400
+    # else
+      item = Item.search(params)
+      render json: ItemSerializer.new(item)
+    # end
+  end
+
+  private
+
+  def item_params
+    params.require(:item).permit(:name, :description, :range, , )
   end
 end
-    # if valid_query?(params)
-      # item = Item.find_item(params[:name])
-      # if !item == nil
-      #   render json: ErrorSerializer.no_results_found
-      # else
-      #   render json: ItemSerializer.new(item)
-      # end
-    # else
-    #   render json: ErrorSerializer.invalid_parameters
-    # end
-
-  # private
-  #   def query_check
-  #     if valid_query?(params) != true
-  #       render json: ErrorSerializer.invalid_parameters, status: 404
-  #     end
-  #   end
+#allow strong params here

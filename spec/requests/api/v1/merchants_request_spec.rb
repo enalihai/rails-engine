@@ -62,4 +62,52 @@ RSpec.describe "Merchants API", type: :request do
       end
     end
   end
+
+   describe 'GET /merchants/find' do
+    it '?name=valid :: a->z, any case, partials included' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Wills Pizza')
+      merchant_3 = Merchant.create!(name: 'Animal Pizza')
+      merchant_4 = Merchant.create!(name: 'Bills BBQ')
+
+      query_params = 'piZZ'
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find', headers: headers, params: query_params
+
+      expect(response.status).to eq(200)
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchant[:data]).to be_a(Hash)
+      expect(merchant[:data][:type]).to eq('merchant')
+      expect(merchant[:data][:attributes]).to be_a(Hash)
+      expect(merchant[:data][:attributes][:name]).to eq('Animal Pizza')
+    end
+  end
+
+  xdescribe 'GET /merchants/find_all' do
+    it '?name=valid :: a->z, any case, partials included' do
+      merchant_1 = Merchant.create!(name: 'Pangolier Pizza')
+      merchant_2 = Merchant.create!(name: 'Bills Pizza')
+      merchant_3 = Merchant.create!(name: 'Rafis Ramen')
+      merchant_4 = Merchant.create!(name: 'Animal Pizza')
+
+      query_params = {name: 'IzZa'}
+      headers = {'CONTENT_TYPE' => 'application/json'}
+
+      get '/api/v1/merchants/find_all', headers: headers, params: query_params
+
+      expect(response).to be_successful
+
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants[:data]).to be_an(Array)
+      expect(merchants[:data].count).to eq(3)
+      expect(merchants[:data][0][:attributes][:name]).to eq(merchant_4.name)
+      expect(merchants[:data][1][:attributes][:name]).to eq(merchant_2.name)
+      expect(merchants[:data][2][:attributes][:name]).to eq(merchant_1.name)
+      expect(merchants[:data]).to_not include(merchant_3)
+    end
+  end
 end

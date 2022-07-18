@@ -1,50 +1,50 @@
 class ErrorSerializer
-  def self.invalid_parameters
+  def self.min_max
     {
     data:
       {
-        id: 'error',
-        title: 'Invalid input: Formatting error'
+        error: "Invalid Format",
+        title: "MIN>MAX => :: min_price cant be greater than max_price!"
       }
     }
   end
 
-  def self.no_results_found
+  def self.no_match
     {
-    data:
+      data:
       {
-        id: 'error',
-        title: "No results found for user input"
+        error: nil,
+        title: "NOMATCH :: No matching results found in database!"
       }
     }
+  end
+
+  def invalid_query
+    {
+      data:
+      {
+        error: nil,
+        title: "UNKNOWN :: Query params are invalid for search!"
+      }
+    }, status: 200
   end
 
   def self.cant_be_blank
     {
-    data:
+      data:
       {
-        id: 'error',
-        title: 'Invalid input: Search cant be blank'
+        error: 'Invalid Input',
+        title: "BLANK :: Queries params can't be blank!"
       }
     }
   end
 
-  def self.nil_query
+  def self.invalid_params
     {
-    data:
+      data:
       {
-        id: 'error',
-        title: 'Invalid input: nil query bad'
-      }
-    }
-  end
-
-  def self.min_greater_than_max
-    {
-    data:
-      {
-        id: 'error',
-        title: 'Invalid input: min price must be < max price'
+        error: nil,
+        title: "INPUTERROR :: params can't use :name with :min or :max!"
       }
     }
   end

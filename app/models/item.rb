@@ -3,27 +3,35 @@ class Item < ApplicationRecord
   has_many :invoice_items
   has_many :invoices, through: :invoice_items
 
-  validates_presence_of :name, :description, :unit_price
+  validates_presence_of :name, :description, :unit_price, :merchant_id
 
-  def self.find_item(query)
-    where("items.name ILIKE ?", "%#{query}%").order(:name).first
+  def self.find_item(name_query)
+    where('name ILIKE ?', "%#{name_query}%").order(:name).first
   end
 
-  def self.find_all_items(query)
-    where("items.name ILIKE ?", "%#{query}%").order(:name)
+  def self.find_all_items(name_query)
+    where('name ILIKE ?', "%#{name_query}%").order(:name)
   end
 
-  def self.find_by_min(min_price)
-    # binding.pry
-    where("items.unit_price > ?", min_price).order(:unit_price).first
+  def self.find_within_range(range)
+    min = range[:min_price].to_f ||= 0
+    max = range[:max_price].to_f ||= Float::INFINITY
+
+    where('unit_price >= ? AND unit_price <= ?', min, max).order(:name)
   end
 
-  def self.find_max_item(max_price)
-    where("items.unit_price < ?", max_price).sort_by(:unit_price).first
+  def self.by_name?(params)
+    return true if params[:name].present?
   end
 
-  def self.find_min_max_item(min_price, max_price)
+  def self.by_price?(params)
+    return true if params.values_at(:name, :min_price).any?(&:present?)
+  end
+
+  def self.search(query)
     binding.pry
-    where("items.unit_price > ? AND items.unit_price < ?", min_price, max_price).sort_by(&:unit_price).last
+    find_item(query[:name]) if by_name?(query)
+    find_within_range(query) if by_price?(query)
+    find_all_items(query)
   end
 end
