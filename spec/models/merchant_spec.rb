@@ -43,5 +43,5 @@ RSpec.describe Merchant, type: :model do
       expect(merchants).to eq([luke, madeleine, renee, mark, stephen])
       expect(merchants).to_not include(blaise)
     end
-  end
+  end 
 end
