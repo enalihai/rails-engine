@@ -3,27 +3,30 @@ class Item < ApplicationRecord
   has_many :invoice_items
   has_many :invoices, through: :invoice_items
 
-  validates_presence_of :name, :description, :unit_price
-
-  def self.find_item(query)
-    where("items.name ILIKE ?", "%#{query}%").order(:name).first
+  validates_presence_of :name
+  validates_presence_of :description 
+  validates_presence_of :unit_price 
+  validates_presence_of :merchant_id
+  
+  def self.find_item(name)
+    where("name ILIKE ?", "%#{name}%").order(:name).first
   end
 
-  def self.find_all_items(query)
-    where("items.name ILIKE ?", "%#{query}%").order(:name)
+  def self.find_all_items(name)
+    where("name ILIKE ?", "%#{name}").order(:name)
   end
 
-  def self.find_by_min(min_price)
-    # binding.pry
-    where("items.unit_price > ?", min_price).order(:unit_price).first
-  end
-
-  def self.find_max_item(max_price)
-    where("items.unit_price < ?", max_price).sort_by(:unit_price).first
-  end
-
-  def self.find_min_max_item(min_price, max_price)
-    binding.pry
-    where("items.unit_price > ? AND items.unit_price < ?", min_price, max_price).sort_by(&:unit_price).last
+  def self.items_within(range)
+    min = range[:min_price].to_f ||= 0
+    max = range[:max_price].to_f ||= Float::INFINITY
+    where("unit_price >= ? AND unit_price =< ?", min, max).order(:unit_price)
   end
 end
+
+
+  # def self.use_range
+  #   min = params[:min_price].to_f ||= 0
+  #   max = params[:max_price].to_f ||=Float::INFINITY
+  #   (min, max)
+  #  use a 0 / 1 flipper to say if it is valid
+  # end

@@ -142,7 +142,7 @@ RSpec.describe 'EXTENSIONS # edge / sad path testing' do
   end
 
   describe 'for any BLANK/Nil/invalid query_params returns specificied json error' do
-    it 'for all BLANK errors :: return correct json' do
+    it 'name BLANK errors :: return correct json' do
       merchant = Merchant.create!(name: 'Test Merchant')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -150,18 +150,19 @@ RSpec.describe 'EXTENSIONS # edge / sad path testing' do
         unit_price: 40.05
       })
 
-      query_params = {name: ''}
+      blank_query = {name: ''}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find', headers: headers, params: query_params
+      get '/api/v1/items/find', headers: headers, params: blank_query
 
-      expect(response.status).to eq(400)
+      expect(response.status).to eq(200)
 
       error = JSON.parse(response.body, symbolize_names: true)
-
+binding.pry
       expect(error[:data]).to be_a(Hash)
-      expect(error[:data][:id]).to eq('error')
-      expect(error[:data][:title]).to eq('Invalid input: Formatting error')
+      expect(error[:data][:id]).to eq(nil)
+      expect(error[:data][:title]).to eq('error: null,
+        title: "NOMATCH :: No matching results found in database!"')
     end
 
     # it 'for all NIL errors :: return correct json' do

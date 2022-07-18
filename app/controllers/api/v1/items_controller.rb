@@ -26,7 +26,13 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   private
-    def item_params
-      params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
-    end
+  def item_params
+    params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
+  end
 end
+  # after destroy :destroy_empty_invoices
+
+  # def destroy_empty_invoices
+  #   some AR to look for any invoices that have 0 items
+  # end
+

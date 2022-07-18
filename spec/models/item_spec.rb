@@ -95,7 +95,7 @@ RSpec.describe Item, type: :model do
         unit_price: 14.59
       })
 
-      item_array = Item.find_item('BaG')
+      item_array = Item.find_all_items('BaG')
 
       expect(item_array).to be_an(Array)
       expect(item_array.count).to eq(3)
