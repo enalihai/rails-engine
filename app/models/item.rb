@@ -7,33 +7,37 @@ class Item < ApplicationRecord
   validates_presence_of :description
   validates_presence_of :unit_price
   validates_presence_of :merchant_id
-
+  
   def self.find_item(params)
-    # binding.pry
-    where("name ILIKE ?", "%#{params[:name]}%").order(:name).first
+    where("name ILIKE ?", "%#{params}%").order(:name).first
   end
 
   def self.find_all_items(params)
-    # binding.pry
-    where("name ILIKE ?", "%#{params[:name]}%").order(:name).all
+    where("name ILIKE ?", "%#{params}%").order(:name).all
   end
 
-  def self.items_within(params)
-    binding.pry
-    min = params[:min_price].to_f ||= 0
-    max = params[:max_price].to_f ||= Float::INFINITY
-    where("unit_price >= ? AND unit_price =< ?", min, max).order(:unit_price)
+  def self.items_within(min, max)
+    min ||= 0
+    max ||= Float::INFINITY
+    where("unit_price >= ? AND unit_price <= ?", "#{min}", "#{max}").order(:unit_price).all
   end
 
-  def self.find_query(params)
-    if ![:name].blank?
-      find_item(params)
-    elsif ![:min_price].blank? && [:min_price].to_f >= 0
-      items_within(params).first
-    elsif ![:max_price].blank? && [:min_price].to_f > 0
-      items_within(params).last
+  def self.find_by(params)
+    if params[:action] == "show"
+      find_query(params)
     else
-      binding.pry
+      find_all_query(params)
+    end
+  end
+  
+  def self.find_query(params)
+    if !params[:name].blank?
+      find_item(params[:name])
+    elsif ![:min_price].blank? && params[:min_price].to_f >= 0
+      items_within(params[:min_price].to_f, params[:max_price]).first
+    elsif ![:max_price].blank? && params[:max_price].to_f > 0
+      items_within(0, params[:max_price].to_f).last
+    else
       params.errors.full_messages
     end
   end
@@ -41,19 +45,12 @@ class Item < ApplicationRecord
   def self.find_all_query(params)
     if ![:name].blank?
       find_all_items(params)
-    elsif ![:min_price].blank? && ![:min_price].blank?
-      items_within(params)
+    elsif ![:min_price].blank? && ![:max_price].blank?
+      items_within(min, max).all
     else
-      binding.pry
       params.errors.full_messages
     end
   end
 end
 
-
-  # def self.use_range
-  #   min = params[:min_price].to_f ||= 0
-  #   max = params[:max_price].to_f ||=Float::INFINITY
-  #   (min, max)
-  #  use a 0 / 1 flipper to say if it is valid
-  # end
+  #### PRIVATE --- would allow you to have no class methods

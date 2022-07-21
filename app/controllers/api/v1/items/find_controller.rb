@@ -1,6 +1,6 @@
 class Api::V1::Items::FindController < ApplicationController
   def index
-    items_array = Item.find_all_query(params)
+    items_array = Item.find_by(params)
     
     if items_array
       render json: ItemSerializer.new(items_array)
@@ -10,7 +10,7 @@ class Api::V1::Items::FindController < ApplicationController
   end
 
   def show
-    item = Item.find_query(params)
+    item = Item.find_by(params)
 
     if item.save
       render json: ItemSerializer.new(item)
@@ -22,6 +22,6 @@ class Api::V1::Items::FindController < ApplicationController
   private
 
   def item_params
-    params.permit(:id, :name, :description, :unit_price, :merchant_id)
+    params.permit(:name, :description, :unit_price, :merchant_id)
   end
 end
