@@ -134,8 +134,8 @@ RSpec.describe 'Item API' do
   end
 
   describe 'GET /items/find' do
-    it 'returns first item alphabetically::case insens query: :includes partial matches' do
-      merchant = Merchant.create!(name: 'Test Merchant')
+    it '?name= returns first item alphabetically::case insens query: :includes partial matches' do
+      merchant = create(:merchant)
       item_1 = merchant.items.create!({
         name: 'Candlestick',
         description: 'Holds your candles',
@@ -198,7 +198,7 @@ RSpec.describe 'Item API' do
     end
 
     it '?min_price=query with price closest to >= min_price' do
-      merchant = Merchant.create!(name: 'Test Merchant')
+      merchant = create(:merchant)
       item_1 = merchant.items.create!({
         name: 'Candlestick',
         description: 'Holds your candles',
@@ -225,7 +225,7 @@ RSpec.describe 'Item API' do
         unit_price: 38.04
       })
 
-      query_params = {min_price: 38.45}
+      query_params = {min_price: '38.45'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
       get '/api/v1/items/find', headers: headers, params: query_params
@@ -255,8 +255,8 @@ RSpec.describe 'Item API' do
   end
 
   describe 'GET /items/find_all' do
-    it 'returns array of items alphabetically::case insens query: :includes partial matches' do
-      merchant = Merchant.create!(name: 'Test Merchant')
+    it '?name= returns array of items alphabetically: :case :insens :partials' do
+      merchant = create(:merchant)
       merchant_2 = Merchant.create!(name: 'Sad Path')
       item_1 = merchant.items.create!({
         name: 'Candlestick',
@@ -289,17 +289,17 @@ RSpec.describe 'Item API' do
         unit_price: 14.59
       })
 
-      query_params = {name: 'BaG'}
+      name_params = {name: 'BaG'}
       headers = {'CONTENT_TYPE' => 'application/json'}
 
-      get '/api/v1/items/find_all', headers: headers, params: query_params
+      get '/api/v1/items/find_all', headers: headers, params: name_params
 
-      expect(response).to be_successful
+      expect(response.status).to eq(200)
 
       items = JSON.parse(response.body, symbolize_names: true)
-  
+#binding.pry
       expect(items).to have_key(:data)
-      expect(items[:data]).to be_a(Hash)
+      expect(items[:data]).to be_a(Array)
       # add more tests here after model AR / SQL
     end
 
