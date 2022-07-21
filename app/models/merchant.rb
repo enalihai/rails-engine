@@ -10,6 +10,6 @@ class Merchant < ApplicationRecord
   end
 
   def self.find_all_merchants(query)
-    where("name ILIKE ?", "%#{query[:name]}%").order(:name).all
+    where("name ILIKE ?", "%#{query[:name]}%").order(:name)
   end
 end
