@@ -19,7 +19,7 @@ RSpec.describe Merchant, type: :model do
       luke = Merchant.create!(name: 'Lukes shop')
       mark = Merchant.create!(name: 'Showers by Mark')
       blaise = Merchant.create!(name: 'XYZ Doctors')
-      query_params = 'Sho'
+      query_params = {name: 'Sho'}
 
       merchant = Merchant.find_merchant(query_params)
 
@@ -36,8 +36,8 @@ RSpec.describe Merchant, type: :model do
       luke = Merchant.create!(name: 'Lukes shop')
       mark = Merchant.create!(name: 'Showers by Mark')
       blaise = Merchant.create!(name: 'XYZ Doctors')
-
-      merchants = Merchant.find_all_merchants('sho')
+      query_params = {name: "sho"}
+      merchants = Merchant.find_all_merchants(query_params)
 
       expect(merchants.count).to eq(5)
       expect(merchants).to eq([luke, madeleine, renee, mark, stephen])

@@ -49,18 +49,26 @@ RSpec.describe Item, type: :model do
         unit_price: 14.59
       })
 
-      item = Item.find_item('BaG')
-
+      query_params = {name: 'BaG'}
+      item = Item.find_query(query_params)
+      # add all the possible queries here and delete other tests
       expect(item).to eq(item_4)
       expect(item).to be_an(Item)
     end
 
-    it '#find_min_price(min_int) returns single item closest to min price'
-    it '#find_max_price(max_int) returns single item closest to max price'
-    it '#find_min_max(min_int, max_int) returns single item in range min_int -> max_int'
+    it '#find_min_price(min_int) returns single item closest to min price' do
+    end 
+
+    it '#find_max_price(max_int) returns single item closest to max price' do
+      
+    end
+    
+    it '#find_min_max(min_int, max_int) returns single item in range min_int -> max_int' do
+      
+    end
   end
 
-  describe '.self#find_all' do
+  xdescribe '.self#find_all' do
     it '#items(query) :: array of items by alphbet::name, no case' do
       merchant = Merchant.create!(name: 'Test Merchant')
       merchant_2 = Merchant.create!(name: 'Sad Path')
@@ -95,12 +103,12 @@ RSpec.describe Item, type: :model do
         unit_price: 14.59
       })
 
-      item_array = Item.find_all_items('BaG')
+      query_params = {name: 'BaG'}
 
-      expect(item_array).to be_an(Array)
+      item_array = Item.find_all_items(query_params)
+
       expect(item_array.count).to eq(3)
-      expect(item_array).to be_all?(Item)
-      expect(item_array).to eq([item_4, item5, item3])
+      expect(item_array).to eq([item_4, item_5, item_3])
     end
 
     it '#by_price(min_int, max_int): array of items in range min_int -> max_int' do

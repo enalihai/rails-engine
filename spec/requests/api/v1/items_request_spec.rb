@@ -167,11 +167,10 @@ RSpec.describe 'Item API' do
 
       get '/api/v1/items/find', headers: headers, params: query_params
 
-      expect(response).to be_successful
+      expect(response.status).to eq(200)
 
       item = JSON.parse(response.body, symbolize_names: true)
 
-      expect(item).to be_a(Hash)
       expect(item[:data].count).to eq(3)
       expect(item[:data][:type]).to eq('item')
 

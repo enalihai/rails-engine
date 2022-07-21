@@ -1,19 +1,27 @@
 class Api::V1::Items::FindController < ApplicationController
-  include Parameterable
-
   def index
-    if valid_query?(params)
-      render json: Item.find_item(params)
+    items_array = Item.find_all_query(params)
+    
+    if items_array
+      render json: ItemSerializer.new(items_array)
     else
-      render json: ErrorSerializer.invalid_parameters, status: 400
+      render json: ItemSerializer.new(items_array)
     end
   end
 
   def show
-    if valid_query?(params)
-      render json: ItemFacade.search(params)
+    item = Item.find_query(params)
+
+    if item.save
+      render json: ItemSerializer.new(item)
     else
-      render json: ErrorSerializer.invalid_parameters, status: 400
+      render json: ItemSerializer.new(item)
     end
+  end
+
+  private
+
+  def item_params
+    params.permit(:id, :name, :description, :unit_price, :merchant_id)
   end
 end
