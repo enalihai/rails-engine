@@ -1,21 +1,19 @@
 class Api::V1::Merchants::FindController < ApplicationController
   def index
-    merchant_array = Merchant.find_all_merchants(merchant_params)
-  
-    render json: MerchantSerializer.new(merchant_array)
+    if !params[:name].blank?
+      merchants_array = Merchant.find_all_merchants(params)
+      render json: MerchantSerializer.new(merchants_array), status: 200
+    else
+      render json: ErrorSerializer.null_result, status: 400
+    end
   end
 
   def show
-    merchant = Merchant.find_merchant(merchant_params)
-  
-    render json: MerchantSerializer.new(merchant)
-  end
-
-  private
-
-  def merchant_params
-    params.permit(:name)
+    if !params[:name].blank?
+      merchant = Merchant.find_merchant(params)
+      render json: MerchantSerializer.new(merchant), status: 200
+    else
+      render json: ErrorSerializer.null_result, status: 400
+    end
   end
 end
-
-#make a handle errors method based on what number it is set to you display it

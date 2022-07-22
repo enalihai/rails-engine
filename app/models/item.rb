@@ -9,48 +9,58 @@ class Item < ApplicationRecord
   validates_presence_of :merchant_id
   
   def self.find_item(params)
-    where("name ILIKE ?", "%#{params}%").order(:name).first
+    where("name ILIKE ?", "%#{params[:name]}%").order(:name).first
   end
 
   def self.find_all_items(params)
-    where("name ILIKE ?", "%#{params}%").order(:name).all
+    where("name ILIKE ?", "%#{params[:name]}%").order(:name).all
   end
 
-  def self.items_within(min, max)
-    min ||= 0
-    max ||= Float::INFINITY
-    where("unit_price >= ? AND unit_price <= ?", "#{min}", "#{max}").order(:unit_price).all
-  end
-
-  def self.find_by(params)
-    if params[:action] == "show"
-      find_query(params)
+  def self.items_within(params)
+    if params[:min_price].blank? && !params[:max_price].blank? && params[:name].blank?
+      min = 0
+      max = params[:max_price].to_f
+      where("unit_price > ? AND unit_price < ?", min, max).order(:unit_price).last
+    elsif params[:max_price].blank? && !params[:min_price].blank?
+      min = params[:min_price].to_f
+      max = 5000000000000000
+      where("unit_price > ? AND unit_price < ?", min, max).order(:unit_price).first
+    elsif !params[:max_price].blank? && !params[:min_price].blank? 
+      min = params[:min_price].to_f
+      max = params[:max_price].to_f
+      where("unit_price >= ? AND unit_price <= ?", min, max).order(:unit_price).all
     else
-      find_all_query(params)
-    end
-  end
-  
-  def self.find_query(params)
-    if !params[:name].blank?
-      find_item(params[:name])
-    elsif ![:min_price].blank? && params[:min_price].to_f >= 0
-      items_within(params[:min_price].to_f, params[:max_price]).first
-    elsif ![:max_price].blank? && params[:max_price].to_f > 0
-      items_within(0, params[:max_price].to_f).last
-    else
-      params.errors.full_messages
+      ErrorSerializer.new(error: "UNKNOWN :: No valid query can be found!")
     end
   end
   
   def self.find_all_query(params)
-    if ![:name].blank?
+    if params[:name].blank? && !params[:min_price].blank? && !params[:max_price].blank?
+      if params[:min_price].to_f > params[:max_price].to_f
+        {error: "MIN#MAX :: Min cant be greater than max!"}
+      elsif params[:min_price].to_f < 0 || params[:max_price].to_f < 0
+        {error: "MIN#MAX :: Queries cant be less than 0!"}
+      elsif params[:name].blank? && !params[:min_price].blank? && !params[:max_price].blank? 
+        items_within(params)
+      else
+        {error: "MIN#MAX :: NO METHODS FOUND!"}
+      end
+    elsif !params[:name].blank? && params[:min_price].blank? && params[:max_price].blank?
       find_all_items(params)
-    elsif ![:min_price].blank? && ![:max_price].blank?
-      items_within(min, max).all
     else
-      params.errors.full_messages
+      {error: "UNKNOWN :: No valid query can be found!"}
+    end
+  end    
+  
+  def self.find_query(params)
+    if params[:name].blank? && params[:min_price].blank? && !params[:max_price].blank?
+      items_within(params)
+    elsif params[:name].blank? && !params[:min_price].blank? && params[:max_price].blank?
+      items_within(params)
+    elsif params[:name] && params[:min_price].blank? && params[:max_price].blank?
+      find_item(params)
+    else
+      {error: 'NOQUERY :: No valid methods found!'}
     end
   end
 end
-
-  #### PRIVATE --- would allow you to have no class methods

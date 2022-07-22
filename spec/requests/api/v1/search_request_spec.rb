@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'EXTENSIONS # edge / sad path testing' do
+RSpec.describe 'EXTENSIONS # edge / sad ' do
   xdescribe 'for items#find' do
     it '?query=NOMATCHname returns error object' do
       merchant = Merchant.create!(name: 'Test Merchant')
@@ -37,7 +37,7 @@ RSpec.describe 'EXTENSIONS # edge / sad path testing' do
 
       get '/api/v1/items/find', headers: headers, params: query_params
 
-      expect(response.status).to eq(400)
+      expect(response.status).to eq(404)
 
       error = JSON.parse(response.body, symbolize_names: true)
 

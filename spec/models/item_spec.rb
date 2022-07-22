@@ -48,9 +48,9 @@ RSpec.describe Item, type: :model do
         description: 'Lets you down hard',
         unit_price: 14.59
   })
-      name = 'BaG'
-      min = 23.04
-      max = 41.45
+      name = {name: 'BaG'}
+      min_max_range = {min_price: 23.04, max_price: 41.45}
+      max = {max_price: 41.45}
       
       named_item = Item.find_item(name)
       item_array = Item.find_all_items(name)
@@ -58,23 +58,20 @@ RSpec.describe Item, type: :model do
       test_array = []
       item_array.each {|item| test_array << item.name}
       
-      item_array.each {|item| expect(item.merchant_id).to eq(1)}
-      
       expect(named_item).to eq(item_4)
       expect(test_array).to eq(['Gym bag', 'Overnight bag', 'Rope bag'])
       expect(item_array.count).to eq(3)
       
       expect(named_item).to be_an(Item)
       
-      items_by_range = Item.items_within(min, max)
-      max_item = Item.items_within(min, max).last
-      min_item = Item.items_within(min, max).first
+      items_by_range = Item.items_within(min_max_range)
+      max_item = Item.items_within(min_max_range).last
+      min_item = Item.items_within(min_max_range).first
       
       test_array = []
       items_by_range.each {|item| test_array << item.name}
       
       expect(items_by_range.count).to eq(4)
-      items_by_range.each {|item| expect(item.merchant_id).to eq(1)}
       
       expect(min_item).to eq(item_4)
       expect(max_item).to eq(item_1)
